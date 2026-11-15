@@ -181,7 +181,7 @@ h1, h2, h3, p { margin-top: 0; }
 .certificate-body { flex: 1; margin: 0; color: #111827; font-family: "Libre Baskerville", "Times New Roman", serif; font-size: 12px; line-height: 1.8; text-align: justify; }
 .certificate-body p { margin: 0; text-indent: 18px; }
 .certificate-body p + p { margin-top: 5px; }
-.cert-value { display: inline; padding: 0 2px; color: #111827; font-weight: 700; }
+.cert-value { display: inline; padding: 0 2px 1px; border-bottom: 1px dotted currentColor; color: #111827; font-weight: 700; }
 .cert-placeholder { display: inline; color: #111827; white-space: nowrap; }
 .certificate-ids { margin: 2em 0 0; color: #111827; font-family: "Libre Baskerville", "Times New Roman", serif; font-size: 11px; font-style: italic; line-height: 1.7; }
 .certificate-ids[hidden] { display: none; }

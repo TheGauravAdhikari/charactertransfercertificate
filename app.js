@@ -242,7 +242,9 @@ function certificateParts(student, template) {
     " A.D.).",
     { paragraphBreak: true },
     choice(pronouns.heShe),
-    " bears a good moral character and we wish ",
+    " bears a ",
+    { bold: "good" },
+    " moral character and we wish ",
     choice(pronouns.himHer),
     " every success in future academic career and life."
   ];
@@ -259,6 +261,12 @@ function renderCertificateBody(container, parts) {
     if (part.paragraphBreak) {
       paragraph = document.createElement("p");
       paragraphs.push(paragraph);
+      continue;
+    }
+    if (part.bold) {
+      const strong = document.createElement("strong");
+      strong.textContent = part.bold;
+      paragraph.append(strong);
       continue;
     }
     const blank = document.createElement("span");
@@ -537,10 +545,16 @@ function populateCertificate(certificate, student, template) {
     `Ref No.: ${reference || schoolReference || "…………"}`;
 
   const details = certificate.querySelector("#certificate-details");
+  const registrationNo = student ? firstMatchingField(student, /^reg[\s._-]*no\.?$/i) : "";
+  const registrationType = student ? firstMatchingField(student, /^reg[\s._-]*no[\s._-]*name$/i) : "";
+  const registrationLabel = registrationType
+    ? `${registrationType} Registration No`
+    : "Registration No";
+  const symbolNo = student ? firstMatchingField(student, /symbol[\s._-]*(?:no|number)?\b/i) : "";
   const entries = student
     ? [
-      ["Symbol No", firstMatchingField(student, /symbol[\s._-]*(?:no|number)?\b/i)],
-      ["Registration No", firstMatchingField(student, /^reg[\s._-]*no\.?$/i)],
+      [registrationLabel, registrationNo],
+      ["Symbol No", symbolNo],
       ["IEMIS ID", firstMatchingField(student, /iemis|emis/i)]
       ].filter(([, value]) => value)
     : [];
