@@ -49,6 +49,22 @@ function cleanText(value) {
   return String(value).trim();
 }
 
+function certificateDate(value) {
+  if (value instanceof Date && !Number.isNaN(value.valueOf())) {
+    return `${value.getMonth() + 1}/${value.getDate()}/${value.getFullYear()}`;
+  }
+  const text = cleanText(value);
+  const match = text.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{2}|\d{4})$/);
+  return match ? `${Number(match[1])}/${Number(match[2])}/${match[3]}` : text;
+}
+
+function dateValueFor(student, patterns, fallback = "") {
+  const entry = Object.entries(student).find(([key, value]) =>
+    patterns.some(pattern => pattern.test(key)) && cleanText(value)
+  );
+  return entry ? certificateDate(entry[1]) : fallback;
+}
+
 function schoolFontSizeSetting(value, label, minPx, maxPx) {
   if (!value) return null;
   const match = value.match(/^(\d+(?:\.\d+)?)\s*(px|pt)?$/i);
@@ -110,13 +126,13 @@ function studentGender(student) {
 function certificatePronouns(student) {
   const gender = student ? studentGender(student) : "";
   if (gender === "female") {
-    return { title: "Miss", child: "daughter", heShe: "She", hisHer: "her", himHer: "her" };
+    return { title: "Ms.", child: "daughter", heShe: "She", hisHer: "her", himHer: "her" };
   }
   if (gender === "male") {
     return { title: "Mr.", child: "son", heShe: "He", hisHer: "his", himHer: "him" };
   }
   return {
-    title: "Mr. / Miss / Mrs.",
+    title: "Mr. / Ms.",
     child: "son / daughter",
     heShe: "He / She",
     hisHer: "his / her",
@@ -142,79 +158,115 @@ function blankSpan(value) {
 function certificateParts(student, template) {
   const pronouns = certificatePronouns(student);
   const parents = parentNames(student);
-  const fromYear = student ? valueFor(student, [/from year|start year|admission year|enrolled|joined|from\s*b\.?s/i], "") : "";
-  const year = student ? valueFor(student, [/academic year|completion year|passing year|passed year|(^|[\s_])year($|[\s_])/i], "") : "";
-  const toYear = student ? valueFor(student, [/to year|end year|completion year|passing year|passed year|to\s*b\.?s/i], year) : "";
   const examYear = student
-    ? valueFor(student, [/exam(?:ination)?\s*year|held in|year\s*b\.?s|year\s*a\.?d/i], toYear || year)
+    ? valueFor(student, [
+        /^examheldyearbs$/i,
+        /exam(?:ination)?\s*year|held in|passing year|passed year|academic year/i
+      ], "")
     : "";
+  const examYearBs = student
+    ? valueFor(student, [/^examheldyearbs$/i, /exam(?:ination)?.*b\.?s|held in.*b\.?s|year.*b\.?s/i], examYear)
+    : "";
+  const examYearAd = student
+    ? valueFor(student, [/^examheldyearad$/i, /exam(?:ination)?.*a\.?d|held in.*a\.?d|year.*a\.?d/i], "")
+    : "";
+  const classFromYear = student ? valueFor(student, [/^yearclassfrombs$/i], "") : "";
+  const classToYear = student ? valueFor(student, [/^yearclasstobs$/i], "") : "";
   const namedExam = student ? valueFor(student, [/examination|exam\b/i], "") : "";
   const className = student
     ? valueFor(student, [/class|grade|level/i], template === "neb" ? "12" : "").replace(/^(class|grade)\s+/i, "")
     : "";
-  const examination = namedExam
-    || (template === "neb" ? "Grade 12 / NEB" : className ? `Class ${className}` : "");
-  const result = student
-    ? valueFor(student, template === "neb" ? [/gpa|grade point/i] : [/division|gpa|grade point|percentage|result/i], "")
+  const examination = ((student ? valueFor(student, [/^lastclass$/i], "") : "")
+    || namedExam
+    || (template === "neb" ? "Grade 12 / NEB" : className ? `Class ${className}` : ""))
+    .replace(/\s+examination$/i, "");
+  const result = student ? valueFor(student, [/gpa|grade point/i], "") : "";
+  const birthDateBs = student
+    ? dateValueFor(student, [/^dateofbirthbs$/i, /(?:date.?of.?birth|dob|birth).*b\.?s/i],
+      dateValueFor(student, [/^(?:date.?of.?birth|dob)$/i]))
     : "";
-  const character = student ? valueFor(student, [/character|conduct|behaviour|behavior/i], "good") : "";
+  const birthDateAd = student
+    ? dateValueFor(student, [/^dateofbirthad$/i, /(?:date.?of.?birth|dob|birth).*a\.?d/i])
+    : "";
+  const province = student ? valueFor(student, [/province/i], "") : "";
+  const district = student ? valueFor(student, [/district/i], "") : "";
+  const municipality = student ? valueFor(student, [/municipality|rural\s*municipality/i], "") : "";
+  const ward = student ? valueFor(student, [/ward(?:\s*(?:no|number))?/i], "") : "";
+  const address = student
+    ? valueFor(student, [/permanent.?address|residential.?address|full.?address|address/i], [
+        province,
+        district,
+        municipality,
+        ward && `Ward ${ward}`
+      ].filter(Boolean).join(", "))
+    : "";
   const choice = value => (student ? blankSpan(value) : value);
 
   return [
     "This is to certify that ",
     choice(pronouns.title),
-    student ? " " : " ",
-    blankSpan(student ? studentName(student) : ""),
     " ",
+    blankSpan(student ? studentName(student) : ""),
+    ", ",
     choice(pronouns.child),
     " of Mr. ",
     blankSpan(parents.father),
     " and Mrs. ",
     blankSpan(parents.mother),
-    ", a permanent resident of Banganga-02, Kapilvastu",
-    ", was a regular student of this institution from the year ",
-    blankSpan(fromYear),
-    " B.S. to the year ",
-    blankSpan(toYear),
+    ", a permanent resident of ",
+    blankSpan(address),
+    ", was a bonafide student of this institution. ",
+    choice(pronouns.heShe),
+    " studied from ",
+    blankSpan(classFromYear),
+    " B.S. to ",
+    blankSpan(classToYear),
     " B.S. ",
     choice(pronouns.heShe),
     " has passed the ",
     blankSpan(examination),
-    " Examination (Class: ",
-    blankSpan(className),
-    ") held in the year ",
-    blankSpan(examYear),
-    " B.S. / A.D. and secured ",
+    " Examination held in the year ",
+    blankSpan(examYearBs),
+    " B.S. (",
+    blankSpan(examYearAd),
+    " A.D.) and secured a Cumulative Grade Point Average (GPA) of ",
     blankSpan(result),
-    " GPA / Division. To the best of our knowledge, ",
-    choice(pronouns.hisHer),
-    " character and conduct during the study period were ",
-    blankSpan(character),
     ".",
-    { lineBreak: true },
-    "We wish ",
+    { paragraphBreak: true },
+    "According to the school records, ",
+    choice(pronouns.hisHer),
+    " date of birth is ",
+    blankSpan(birthDateBs),
+    " B.S. (",
+    blankSpan(birthDateAd),
+    " A.D.).",
+    { paragraphBreak: true },
+    choice(pronouns.heShe),
+    " bears a good moral character and we wish ",
     choice(pronouns.himHer),
-    " every success in future endeavors."
+    " every success in future academic career and life."
   ];
 }
 
 function renderCertificateBody(container, parts) {
-  const paragraph = document.createElement("p");
+  let paragraph = document.createElement("p");
+  const paragraphs = [paragraph];
   for (const part of parts) {
     if (typeof part === "string") {
       paragraph.append(document.createTextNode(part));
       continue;
     }
-    if (part.lineBreak) {
-      paragraph.append(document.createElement("br"));
+    if (part.paragraphBreak) {
+      paragraph = document.createElement("p");
+      paragraphs.push(paragraph);
       continue;
     }
     const blank = document.createElement("span");
-    blank.className = "cert-blank";
+    blank.className = part.value ? "cert-value" : "cert-placeholder";
     blank.textContent = part.value || "………………";
     paragraph.append(blank);
   }
-  container.replaceChildren(paragraph);
+  container.replaceChildren(...paragraphs);
 }
 
 function studentSubtitle(student) {
@@ -412,6 +464,10 @@ function setSchoolHeading() {
     }
   }
   document.getElementById("certificate-school-name").textContent = shortName || name;
+  const schoolCode = schoolInfo["school code"] || schoolInfo.schoolcode || "";
+  const schoolCodeElement = document.getElementById("certificate-school-code");
+  schoolCodeElement.textContent = schoolCode ? `School Code: ${schoolCode}` : "";
+  schoolCodeElement.hidden = !schoolCode;
   const fullNameElement = document.getElementById("certificate-school-fullname");
   fullNameElement.textContent = shortName ? name : "";
   fullNameElement.hidden = !shortName;
@@ -472,12 +528,20 @@ function setPhoto(student, certificate = document) {
 function populateCertificate(certificate, student, template) {
   renderCertificateBody(certificate.querySelector("#certificate-body"), certificateParts(student, template));
 
+  const reference = student
+    ? firstMatchingField(student, /^ref(?:erence)?[\s._-]*(?:no|number)?\.?$/i)
+    : "";
+  const schoolReference = schoolInfo["ref no"] || schoolInfo["ref. no"] ||
+    schoolInfo.refno || schoolInfo["reference no"] || "";
+  certificate.querySelector("#certificate-reference").textContent =
+    `Ref No.: ${reference || schoolReference || "…………"}`;
+
   const details = certificate.querySelector("#certificate-details");
   const entries = student
     ? [
-        ["Symbol No", firstMatchingField(student, /symbol[\s._-]*(?:no|number)?\b/i)],
-        ["Registration No", firstMatchingField(student, /reg(?:istration)?[\s._-]*(?:no|number)\b/i) || "1234"],
-        ["IEMIS ID", firstMatchingField(student, /iemis|emis/i)]
+      ["Symbol No", firstMatchingField(student, /symbol[\s._-]*(?:no|number)?\b/i)],
+      ["Registration No", firstMatchingField(student, /^reg[\s._-]*no\.?$/i)],
+      ["IEMIS ID", firstMatchingField(student, /iemis|emis/i)]
       ].filter(([, value]) => value)
     : [];
   if (!entries.length) {
@@ -489,7 +553,7 @@ function populateCertificate(certificate, student, template) {
       const line = document.createElement("p");
       line.append(document.createTextNode(`${label}: `));
       const blank = document.createElement("span");
-      blank.className = "cert-blank";
+      blank.className = "cert-value";
       blank.textContent = value;
       line.append(blank);
       fragment.append(line);

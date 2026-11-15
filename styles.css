@@ -163,11 +163,14 @@ h1, h2, h3, p { margin-top: 0; }
 .cert-phone { position: absolute; top: 10px; right: 22px; display: flex; align-items: center; gap: 5px; margin: 0; color: #0b2d73; font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 700; }
 .cert-phone[hidden] { display: none; }
 .phone-icon { font-size: 12px; }
-.certificate-header { display: grid; grid-template-columns: 78px minmax(0, 1fr) 72px; gap: 8px; align-items: center; margin-top: 2px; }
-.certificate-logo-wrap { display: grid; width: 74px; height: 74px; place-items: center; overflow: hidden; border-radius: 50%; background: #fff; }
-.certificate-logo { width: 70px; height: 70px; object-fit: contain; }
+.certificate-header { display: grid; grid-template-columns: 90px minmax(0, 1fr) 72px; gap: 8px; align-items: center; margin-top: 2px; }
+.certificate-logo-wrap { display: flex; width: 90px; height: 116px; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; background: #fff; }
+.certificate-school-code, .certificate-reference { margin: 0; color: #0b2d73; font-family: Arial, Helvetica, sans-serif; font-size: 8px; font-weight: 700; line-height: 1.15; text-align: center; white-space: nowrap; }
+.certificate-school-code { transform: translateY(-4px); }
+.certificate-logo { width: 54px; height: 54px; flex: 0 0 auto; object-fit: contain; }
+.certificate-reference { margin-top: 40px; font-size: 7px; font-weight: 400; }
 .school-heading { min-width: 0; padding: 0 4px; text-align: center; }
-.school-heading h3 { display: block; width: 100%; margin: 0; color: #0b2d73; font-family: Arial, Helvetica, sans-serif; font-size: var(--school-name-font-size, clamp(16px, 2.4vw, 28px)); font-weight: 900; line-height: 1.05; letter-spacing: .4px; text-align: center; text-transform: uppercase; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.school-heading h3 { display: block; width: 100%; margin: 0; color: #0b2d73; font-family: Arial, Helvetica, sans-serif; font-size: var(--school-name-font-size, clamp(16px, 2.4vw, 28px)); font-weight: 900; line-height: 1.05; letter-spacing: .4px; text-align: center; text-shadow: 1px 1px 0 #8ba6c7, 2px 2px 0 #d5deea; text-transform: uppercase; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .school-heading .school-fullname { margin: 3px 0 0; color: #0b2d73; font-family: Arial, Helvetica, sans-serif; font-size: clamp(11px, 1.6vw, 16px); font-weight: 800; letter-spacing: .8px; text-transform: uppercase; }
 .school-heading p { margin: 2px 0 0; color: #0b2d73; font-family: Arial, Helvetica, sans-serif; font-size: var(--school-details-font-size, 11px); line-height: 1.25; }
 .school-heading #certificate-school-established { font-weight: 700; }
@@ -175,15 +178,18 @@ h1, h2, h3, p { margin-top: 0; }
 .certificate-photo { width: 100%; height: 100%; object-fit: cover; }
 .photo-placeholder { color: #8b97a8; font-family: "Libre Baskerville", Georgia, serif; font-size: 12px; font-style: italic; }
 .certificate-title { margin: 8px 0 10px; color: #c4162e; font-family: "Playfair Display", "Times New Roman", serif; font-size: clamp(18px, 2.5vw, 26px); font-style: italic; font-weight: 700; letter-spacing: .3px; text-align: center; text-decoration: underline; text-underline-offset: 4px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-.certificate-body { flex: 1; margin: 0; color: #111827; font-family: "Libre Baskerville", "Times New Roman", serif; font-size: 12px; line-height: 2.05; text-align: justify; }
+.certificate-body { flex: 1; margin: 0; color: #111827; font-family: "Libre Baskerville", "Times New Roman", serif; font-size: 12px; line-height: 1.8; text-align: justify; }
 .certificate-body p { margin: 0; text-indent: 18px; }
-.cert-blank { display: inline; border-bottom: 1px dotted #1f2937; padding: 0 3px 1px; color: #111827; font-style: italic; font-weight: 700; }
+.certificate-body p + p { margin-top: 5px; }
+.cert-value { display: inline; padding: 0 2px; color: #111827; font-weight: 700; }
+.cert-placeholder { display: inline; color: #111827; white-space: nowrap; }
 .certificate-ids { margin: 2em 0 0; color: #111827; font-family: "Libre Baskerville", "Times New Roman", serif; font-size: 11px; font-style: italic; line-height: 1.7; }
 .certificate-ids[hidden] { display: none; }
 .certificate-ids p { margin: 0; }
-.certificate-ids .cert-blank { font-style: italic; }
+.certificate-ids .cert-value { font-style: italic; }
 .signature-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: start; margin-top: 36px; color: #111827; font-family: "Libre Baskerville", "Times New Roman", serif; font-size: 11px; }
-.sig-prep, .sig-checked, .sig-principal { display: flex; flex-direction: column; align-items: center; border-top: 1px solid #4b5563; padding-top: 4px; text-align: center; }
+.sig-prep, .sig-checked, .sig-principal { display: flex; flex-direction: column; align-items: center; padding-top: 4px; text-align: center; }
+.sig-prep::before, .sig-checked::before, .sig-principal::before { margin-bottom: 3px; content: "………………"; letter-spacing: 1px; }
 .sig-date { margin-top: 7px; }
 .principal-name { min-height: 14px; font-weight: 700; }
 .page-footer { padding: 17px 0 24px; color: #9aa49e; font-size: 9px; text-align: center; }
@@ -226,14 +232,21 @@ h1, h2, h3, p { margin-top: 0; }
   .school-tagline { font-size: 11pt; }
   .cert-phone { top: 5mm; right: 10mm; font-size: 11pt; }
   .certificate-header { grid-template-columns: 28mm minmax(0, 1fr) 26mm; gap: 3mm; }
-  .certificate-logo-wrap { width: 26mm; height: 26mm; }
-  .certificate-logo { width: 24mm; height: 24mm; }
+  .certificate-logo-wrap { width: 28mm; height: 40mm; }
+  .certificate-school-code { font-size: 8pt; }
+  .certificate-logo { width: 19mm; height: 19mm; }
+  .certificate-school-code { transform: translateY(-2mm); }
+  .certificate-reference { margin-top: 12mm; font-size: 7pt; }
   .school-heading h3 { font-size: var(--school-name-print-font-size, 22pt); }
   .school-heading .school-fullname { font-size: 13pt; }
   .school-heading p { font-size: var(--school-details-print-font-size, 11pt); }
+  .school-heading #certificate-school-address,
+  .school-heading #certificate-school-established {
+    font-size: calc(2 * var(--school-details-print-font-size, 11pt));
+  }
   .certificate-photo-wrap { width: 24mm; height: 30mm; }
   .certificate-title { margin: 3mm 0 4mm; font-size: 22pt; }
-  .certificate-body { font-size: 13pt; line-height: 2.05; }
+  .certificate-body { font-size: 13pt; line-height: 1.8; }
   .certificate-ids { margin-top: 4mm; font-size: 12pt; }
   .signature-row { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6mm; align-items: start; margin-top: 15mm; font-size: 11pt; }
   .sig-date { margin-top: 2mm; }

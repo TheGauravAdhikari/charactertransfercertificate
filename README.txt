@@ -24,7 +24,9 @@ https://www.python.org/downloads/ and run start-app.bat again.
 FILES AND PRIVACY
 
 Keep the school files beside the app: Data.xlsx, school-record.txt, logo.png,
-and the Photos folder. Edit school-record.txt to add your school's details.
+and the Photos folder. Edit school-record.txt to add your school's details;
+School Code appears above the logo, and Ref No. appears below it.
+If Data.xlsx has a RefNo column, its value is used for Ref No. and Registration No.
 You can optionally add "Short Name: Your school display name" and
 "Tagline: Your school motto" to school-record.txt for the certificate header.
 Student files are served only to this computer over its local address and are
