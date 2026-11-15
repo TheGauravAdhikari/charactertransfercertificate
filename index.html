@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#153a35">
+    <title>Character Certificate Desk</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Character Certificate Desk home">
+        <span class="brand-mark" aria-hidden="true">✦</span>
+        <span><strong>Character Certificate Desk</strong><small>Student records &amp; printing</small></span>
+      </a>
+      <span class="secure-note"><span class="status-dot"></span> Your files stay on this device</span>
+    </header>
+
+    <main class="page-shell">
+      <section class="intro">
+        <div>
+          <p class="eyebrow">SCHOOL ADMINISTRATION</p>
+          <h1>Student character certificates</h1>
+          <p class="intro-copy">Tick a student in the list, choose a certificate format, and print.</p>
+        </div>
+        <button class="button button-primary" id="print-button" type="button" disabled>
+          <span aria-hidden="true">↗</span> Print selected (0)
+        </button>
+      </section>
+
+      <section class="setup-card" aria-labelledby="setup-title">
+        <div class="section-heading setup-heading">
+          <div>
+            <p class="eyebrow">READY TO PRINT</p>
+            <h2 id="setup-title">Your school records</h2>
+          </div>
+          <span class="local-badge"><span aria-hidden="true">●</span> Private &amp; local</span>
+        </div>
+        <p class="setup-copy">The student list, school details, and logo load automatically when you start the app.</p>
+        <details class="manual-files">
+          <summary>Replace a file manually</summary>
+          <div class="upload-grid">
+          <label class="upload-tile" for="workbook-input">
+            <span class="upload-icon" aria-hidden="true">▦</span>
+            <span class="upload-text"><strong>Student spreadsheet</strong><small id="workbook-label">Select your Data.xlsx file</small></span>
+            <span class="upload-action">Choose file</span>
+            <input id="workbook-input" type="file" accept=".xlsx,.xls,.csv">
+          </label>
+          <label class="upload-tile" for="photos-input">
+            <span class="upload-icon" aria-hidden="true">▧</span>
+            <span class="upload-text"><strong>Student photos</strong><small id="photos-label">Select the Photos folder</small></span>
+            <span class="upload-action">Choose folder</span>
+            <input id="photos-input" type="file" accept="image/*" webkitdirectory directory multiple>
+          </label>
+          <label class="upload-tile" for="logo-input">
+            <span class="upload-icon" aria-hidden="true">✧</span>
+            <span class="upload-text"><strong>School logo</strong><small id="logo-label">Choose logo.png</small></span>
+            <span class="upload-action">Choose image</span>
+            <input id="logo-input" type="file" accept="image/*">
+          </label>
+          <label class="upload-tile" for="school-input">
+            <span class="upload-icon" aria-hidden="true">▤</span>
+            <span class="upload-text"><strong>School details</strong><small id="school-label">Choose your school .txt file</small></span>
+            <span class="upload-action">Choose file</span>
+            <input id="school-input" type="file" accept=".txt,text/plain">
+          </label>
+          </div>
+        </details>
+        <p id="status-message" class="status-message" role="status" aria-live="polite">
+          Starting the app and loading your student records…
+        </p>
+      </section>
+
+      <section class="workspace-grid">
+        <section class="list-card" aria-labelledby="list-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">RECORDS</p>
+              <h2 id="list-title">Student list <span class="count-pill" id="record-count">0</span></h2>
+            </div>
+          </div>
+          <label class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input id="search-input" type="search" placeholder="Search FullName, RegNo, SymbolNo..." autocomplete="off" disabled>
+          </label>
+          <div class="range-tools">
+            <label>SN from <input id="range-start" type="number" min="1" value="1" aria-label="Starting student serial number"></label>
+            <label>to <input id="range-end" type="number" min="1" value="10" aria-label="Ending student serial number"></label>
+            <button id="select-range-button" type="button" disabled>Select range</button>
+            <button id="clear-selection-button" type="button" disabled>Clear</button>
+          </div>
+          <div class="student-list-heading" aria-hidden="true"><span>SN</span><span></span><span>FullName</span><span>Select</span></div>
+          <div class="student-list" id="student-list" aria-live="polite">
+            <div class="empty-state">
+              <span class="empty-icon" aria-hidden="true">▦</span>
+              <strong>Your student list will appear here</strong>
+              <span>Student records load automatically when the app starts.</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="preview-card" aria-labelledby="preview-title">
+          <div class="section-heading preview-heading">
+            <div>
+              <p class="eyebrow">CERTIFICATE PREVIEW</p>
+              <h2 id="preview-title">Character certificate</h2>
+            </div>
+            <span class="preview-tag">A4 LANDSCAPE · PRINT READY</span>
+          </div>
+          <fieldset class="template-picker">
+            <legend>Choose certificate format</legend>
+            <label class="template-option">
+              <input type="radio" name="certificate-template" value="school" checked>
+              <span class="template-check" aria-hidden="true">✓</span>
+              <span class="template-copy"><strong>School completion</strong><small>Class completion certificate</small></span>
+            </label>
+            <label class="template-option">
+              <input type="radio" name="certificate-template" value="neb">
+              <span class="template-check" aria-hidden="true">✓</span>
+              <span class="template-copy"><strong>Grade 12 · NEB</strong><small>Includes year and GPA</small></span>
+            </label>
+          </fieldset>
+          <div class="certificate-stage">
+            <article id="certificate" class="certificate" aria-label="Certificate preview">
+              <div class="certificate-frame">
+                <span class="corner corner-tl" aria-hidden="true"></span>
+                <span class="corner corner-br" aria-hidden="true"></span>
+                <div class="certificate-watermark" aria-hidden="true">
+                  <div class="watermark-pattern"></div>
+                  <img class="watermark-logo" alt="" hidden>
+                </div>
+                <div class="certificate-inner">
+                  <div class="cert-topbar">
+                    <p class="school-tagline" id="certificate-school-tagline"></p>
+                    <p class="cert-phone" id="certificate-school-meta" hidden></p>
+                  </div>
+                  <header class="certificate-header">
+                    <div class="certificate-logo-wrap">
+                      <img id="certificate-logo" class="certificate-logo" alt="School logo" hidden>
+                    </div>
+                    <div class="school-heading">
+                      <h3 id="certificate-school-name">School / College Name</h3>
+                      <p class="school-fullname" id="certificate-school-fullname" hidden></p>
+                      <p id="certificate-school-address">Add your school details to get started</p>
+                      <p id="certificate-school-established" hidden></p>
+                    </div>
+                    <div class="certificate-photo-wrap">
+                      <img id="certificate-photo" class="certificate-photo" alt="Student portrait" hidden>
+                      <span id="photo-placeholder" class="photo-placeholder">Photo</span>
+                    </div>
+                  </header>
+                  <h2 class="certificate-title">CHARACTER / TRANSFER CERTIFICATE</h2>
+                  <div class="certificate-body" id="certificate-body"></div>
+                  <div class="certificate-ids" id="certificate-details" hidden></div>
+                  <footer class="signature-row">
+                    <div class="sig-prep">
+                      <span>Prepared By</span>
+                      <span class="sig-date" id="certificate-date">Date of Issue: November 9, 2026</span>
+                    </div>
+                    <div class="sig-checked">
+                      <span>Checked By</span>
+                    </div>
+                    <div class="sig-principal">
+                      <span>Principal</span>
+                      <span class="principal-name" id="certificate-principal"></span>
+                    </div>
+                  </footer>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+      </section>
+      <footer class="page-footer">Made for simple, clear, school-ready printing.</footer>
+    </main>
+    <div id="print-batch" aria-hidden="true"></div>
+  </body>
+</html>
