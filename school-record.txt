@@ -1,5 +1,5 @@
 School Name: SHREE NETRA JYOTI SECONDARY SCHOOL
-School Code:1234
+School Code:50-0750002
 Address: Krishnanagar Municipality-10, Kapilvastu
 Est Date: 2029
 School Name Font Size: 30px
