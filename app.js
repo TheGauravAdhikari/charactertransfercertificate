@@ -544,6 +544,9 @@ function populateCertificate(certificate, student, template) {
   certificate.querySelector("#certificate-reference").textContent =
     `Ref No.: ${reference || schoolReference || "…………"}`;
 
+  const issueDate = student
+    ? dateValueFor(student, [/^dateofissue$/i, /date.?of.?issue|issue.?date/i])
+    : "";
   const details = certificate.querySelector("#certificate-details");
   const registrationNo = student ? firstMatchingField(student, /^reg[\s._-]*no\.?$/i) : "";
   const registrationType = student ? firstMatchingField(student, /^reg[\s._-]*no[\s._-]*name$/i) : "";
@@ -576,7 +579,7 @@ function populateCertificate(certificate, student, template) {
     details.hidden = false;
   }
 
-  certificate.querySelector("#certificate-date").textContent = "Date of Issue: November 9, 2026";
+  certificate.querySelector("#certificate-date").textContent = `Date of Issue: ${issueDate}`;
   if (student) setPhoto(student, certificate);
   else {
     const image = certificate.querySelector("#certificate-photo");
